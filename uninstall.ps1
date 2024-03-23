@@ -1,4 +1,4 @@
-Remove-Item -Path "$env:PROGRAMFILES\PowerCmd\" -Recurse -Force
+Remove-Item -Path "$env:APPDATA\PowerCmd\" -Recurse -Force
 
 $SystemToolsDirectory = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\System Tools"
 $DefaultShortcut = Get-ChildItem -Path $SystemToolsDirectory -Filter "*.lnk" | Where-Object { $_.Name -match "cmd|command|prompt" } | Select-Object -First 1
