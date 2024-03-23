@@ -217,6 +217,7 @@ void back_space(size_t count) {                                         // cance
             BUFFER_CURSOR--;
         }
     }
+    INDEX = 0;
 }
 
 void cancel_until_token(void) {                                         // cancel until a space or a " ora \ is encountered
@@ -732,6 +733,7 @@ int get_input(void) {                                                   // gets 
                     break;
             }
             if (do_default) {
+                INDEX = 0;
                 free_nodes(ACCS.first, ACCS.count);
                 if (strlen(cmd_buffer) >= MAX_BUFFER_SIZE - 1) continue;
                 if (strlen(cmd_buffer) == BUFFER_CURSOR) {
@@ -1085,15 +1087,3 @@ int main(void) {
     }
     return 0;
 }
-
-// TODO: develop an installing system to put all this garbage in a folder and add it to GVE and to installed apps
-//     |
-//     --> to run it when cmd runs, put this in cmd shortcut: %windir%\system32\cmd.exe /c path/to/main.exe
-
-/*
-FEATURES (that cmd doens't have): 
-    permanent hisotry (saved in .history file)          X
-    auto-completion of programs                         X
-    permanent colors settings by command line           X
-    last directory spawn                                X
-*/
