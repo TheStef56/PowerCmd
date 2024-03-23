@@ -20,7 +20,7 @@ If you want to uninstall it, just run **uninstall.ps1** as **ADMINISTRATOR**.
 
 You can use it by running cmd from applications (the installation process create a shortcut to the app that will be located in **%appdata%\PowerCmd\\** and will substitute it to the actual cmd shortcut located in **%appdata%\Microsoft\Windows\Start Menu\Programs\System Tools\\**).
 
-<img src="./assets" alt="PowerCmd" width="800"/>
+<img src="./assets/powercmd.png" alt="PowerCmd" width="800"/>
 
 
 ## License
