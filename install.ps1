@@ -4,6 +4,8 @@ gcc -o .\powercmd.exe .\powercmd.c
 mkdir "$env:APPDATA\PowerCmd"
 move .\powercmd.exe "$env:APPDATA\PowerCmd\powercmd.exe"
 
+Write-Output "program compiled successfully"
+
 # removing default cmd shortcut
 
 $SystemToolsDirectory = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\System Tools"
