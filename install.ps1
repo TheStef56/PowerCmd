@@ -18,6 +18,21 @@ if ($DefaultShortcut -ne $null) {
     Write-Output "Default Command Prompt shortcut not found."
 }
 
+# adding program to global variables evironment
+
+$programPath = "$env:APPDATA\PowerCmd\"
+
+$currentPath = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::Machine)
+
+if ($currentPath -notlike "*$programPath*") {
+    $newPath = $currentPath + ";" + $programPath
+    [System.Environment]::SetEnvironmentVariable("Path", $newPath, [System.EnvironmentVariableTarget]::Machine)
+    Write-Host "Program path added to the PATH variable for all users."
+} else {
+    Write-Host "Program path already exists in the PATH variable."
+}
+
+
 # Creating a new shortcut
 
 $WshShell = New-Object -ComObject WScript.Shell
