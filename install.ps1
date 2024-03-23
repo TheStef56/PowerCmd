@@ -1,8 +1,8 @@
 # compiling powercmd.c
 
 gcc -o .\powercmd.exe .\powercmd.c
-mkdir "$env:PROGRAMFILES\PowerCmd"
-move .\powercmd.exe "$env:PROGRAMFILES\PowerCmd\powercmd.exe"
+mkdir "$env:APPDATA\PowerCmd"
+move .\powercmd.exe "$env:APPDATA\PowerCmd\powercmd.exe"
 
 # removing default cmd shortcut
 
@@ -20,7 +20,7 @@ if ($DefaultShortcut -ne $null) {
 
 $WshShell = New-Object -ComObject WScript.Shell
 $CmdPath = "C:\Windows\System32\cmd.exe"
-$ProgramPath = "$env:PROGRAMFILES\PowerCmd\powercmd.exe"
+$ProgramPath = "$env:APPDATA\PowerCmd\powercmd.exe"
 
 $Shortcut = $WshShell.CreateShortcut("$env:APPDATA\Microsoft\Windows\Start Menu\Programs\System Tools\Command Prompt.lnk")
 $Shortcut.Arguments = "/c `"$ProgramPath`"" 
