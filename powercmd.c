@@ -1000,14 +1000,6 @@ int check_commands(void) {                                              // check
     return 0;
 }
 
-void createFolder(const char *path) {
-    if (!CreateDirectory(path, NULL)) {
-        if (GetLastError() != ERROR_ALREADY_EXISTS) {
-            printf("Failed to create directory\n");
-        }
-    }
-}
-
 void setup_folders(void) {                                           // finds the absolute path of the directory of main program and adds /.history
     char *c = getenv("APPDATA");
     HISTORY_FILE = malloc(MAX_PATH*sizeof(char));
@@ -1021,7 +1013,7 @@ void setup_folders(void) {                                           // finds th
     char folder_path[MAX_PATH];
     DWORD attrib = GetFileAttributes(folder_path);
     if (attrib == INVALID_FILE_ATTRIBUTES || !(attrib & FILE_ATTRIBUTE_DIRECTORY)) {
-        createFolder(folder_path);
+        CreateDirectory(folder_path, NULL);
     }
     return;
 
