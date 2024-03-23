@@ -205,7 +205,6 @@ void back_space(size_t count) {                                         // cance
                 size_t last_bfc = BUFFER_CURSOR;
                 size_t offset   = bfsz -  BUFFER_CURSOR;
                 buff_remove();
-                move_cursor_to_end();
                 reset_terminal_cursor();
                 BUFFER_CURSOR = last_bfc;
                 printf("%s", cmd_buffer);
