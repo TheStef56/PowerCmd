@@ -1000,21 +1000,31 @@ int check_commands(void) {                                              // check
     return 0;
 }
 
-void setup_files_path(void) {                                           // finds the absolute path of the directory of main program and adds /.history
-    getcwd(cmd_buffer, MAX_BUFFER_SIZE);
-    getcwd(cmd_temp_buffer, MAX_BUFFER_SIZE);
-    char *history_file_name = "\\.history";
-    char *session_file_name = "\\.session";
-    for (int x = 0; x < strlen(history_file_name); x++) {
-        buff_append(cmd_buffer, history_file_name[x]);
-        buff_append(cmd_temp_buffer, session_file_name[x]);
+void createFolder(const char *path) {
+    if (!CreateDirectory(path, NULL)) {
+        if (GetLastError() != ERROR_ALREADY_EXISTS) {
+            printf("Failed to create directory\n");
+        }
     }
-    HISTORY_FILE = malloc(strlen(cmd_buffer)*sizeof(char));
-    SESSION_FILE = malloc(strlen(cmd_temp_buffer)*sizeof(char));
-    strncpy(HISTORY_FILE, cmd_buffer, strlen(cmd_buffer) + NULL_TERM);
-    strncpy(SESSION_FILE, cmd_temp_buffer, strlen(cmd_temp_buffer) + NULL_TERM);
-    buff_clear();
-    empty_buffer(cmd_temp_buffer);
+}
+
+void setup_folders(void) {                                           // finds the absolute path of the directory of main program and adds /.history
+    char *c = getenv("APPDATA");
+    HISTORY_FILE = malloc(MAX_PATH*sizeof(char));
+    SESSION_FILE = malloc(MAX_PATH*sizeof(char));
+    sprintf(HISTORY_FILE, "%s", c);
+    sprintf(HISTORY_FILE + strlen(c), "\\PowerCmd\\.history");
+    memset(SESSION_FILE, 0, MAX_PATH);
+    sprintf(SESSION_FILE, "%s", c);
+    sprintf(SESSION_FILE + strlen(c), "\\PowerCmd\\.session");
+
+    char folder_path[MAX_PATH];
+    DWORD attrib = GetFileAttributes(folder_path);
+    if (attrib == INVALID_FILE_ATTRIBUTES || !(attrib & FILE_ATTRIBUTE_DIRECTORY)) {
+        createFolder(folder_path);
+    }
+    return;
+
 }
 
 void print_version_info(void) {                                         // prints windows version, copyright and whatever I want on the start
@@ -1061,7 +1071,7 @@ int main(void) {
     system("");
     BOOL session_loaded = FALSE;
     print_version_info();
-    setup_files_path();
+    setup_folders();
     chdir(getenv("USERPROFILE"));
     while (1) {
         if (!session_loaded) load_sesion();
