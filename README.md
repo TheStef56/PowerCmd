@@ -2,7 +2,7 @@
 
 PowerCmd is a "wrapper" for cmd that adds these features:
 
-- A persistent history of commands (throug which navigate with arrow keys)
+- A persistent history of commands (through which navigate with arrow keys)
 - A persistent session that saves the colors and the last directory you were in
 - Auto-completion of commands, programs in global environment variables
 
