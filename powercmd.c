@@ -385,7 +385,7 @@ size_t auto_complete_dir_dump(char *match, char *path) {                // looks
     return found;
 }
 
-size_t auto_complete_dump(char *match) {                                // looks for commands, directorie or files in the current path to auto-complete the command
+size_t auto_complete_dump(char *match) {                                // looks for commands or directory in the current path to auto-complete the command
     if (ACCS.count > 0) return ACCS.count;
     size_t found = 0;
     char* envVar = getenv("PATH");
@@ -468,7 +468,7 @@ size_t auto_complete_dump(char *match) {                                // looks
     return found;
 }
 
-void check_for_resize_history_file(size_t offset) {                     // checks if the history file is bigger than MAX_HISTORY_SIZE, if so, it shrinks it deleting some content at the beginning
+void check_for_resize_history_file(size_t offset) {                     // checks if the history file is bigger than MAX_HISTORY_SIZE, if so, it shrinks it deletese some content at the beginning
     FILE * fl = fopen(HISTORY_FILE, "rb");
     fseek(fl, 0, SEEK_END);
     size_t size = ftell(fl);
@@ -499,7 +499,7 @@ void load_cmd(void) {                                                   // gets 
 
     ch = fgetc(fl);
 
-    for (int x = 0; x <= INDEX; x++) {
+    for (int x = 0; x < INDEX; x++) {
         while (ch != '\n') {
             if (FILE_CURSOR_OFFSET == size) break;
             FILE_CURSOR_OFFSET++;
@@ -671,8 +671,8 @@ int get_input(void) {                                                   // gets 
                     if (!is_shift_pressed && !is_V_pressed){
                         if (INDEX <= count_lines()) {
                             reset_terminal_cursor();
-                            load_cmd();
                             INDEX++;
+                            load_cmd();
                         }
                         break;
                     }
@@ -784,7 +784,7 @@ void sanitize_spaces(char *buffer) {                                    // remov
     }
 }
 
-void sanitize_slashes(char *buffer) {                                   // removes front slashes and puts back slashes when completing a path
+void sanitize_slashes(char *buffer) {                                   // removes front/slashes and puts back slashes when completing a path
     size_t len = strlen(buffer);
     for (size_t x = 0; x < len; x++) {
         if (buffer[x] == '/') buffer[x] = '\\';
@@ -816,7 +816,7 @@ void init_colors(void) {                                                // inits
     printf("\n");
 }
 
-void save_session(void) {                                               // saves colors and path
+void save_session(void) {                                               // save colors and path
     FILE *fl = fopen(SESSION_FILE, "wb");
     fwrite(&CURRENT_CORE_COLOR, sizeof(&CURRENT_CORE_COLOR), 1, fl);
     fwrite(&CURRENT_TYPING_COLOR, sizeof(&CURRENT_TYPING_COLOR), 1, fl);
@@ -829,7 +829,7 @@ void save_session(void) {                                               // saves
     fclose(fl);
 }
 
-void load_sesion(void) {                                                // loads colors and path
+void load_sesion(void) {                                                // load colors and path
     if (access(SESSION_FILE, F_OK) == 0) {
         FILE *fl = fopen(SESSION_FILE, "rb");
         fread(&CURRENT_CORE_COLOR, sizeof(&CURRENT_CORE_COLOR), 1, fl);
@@ -999,7 +999,7 @@ int check_commands(void) {                                              // check
     return 0;
 }
 
-void setup_folders(void) {                                           // finds the absolute path of the directory of main program and adds \.history
+void setup_folders(void) {                                           // finds the absolute path of the directory of main program and adds /.history
     char *c = getenv("APPDATA");
     HISTORY_FILE = malloc(MAX_PATH*sizeof(char));
     SESSION_FILE = malloc(MAX_PATH*sizeof(char));
@@ -1018,7 +1018,7 @@ void setup_folders(void) {                                           // finds th
 
 }
 
-void print_version_info(void) {                                         // prints Windows version, copyright and whatever I want on the start
+void print_version_info(void) {                                         // prints windows version, copyright and whatever I want on the start
     FILE *fp = popen("ver", "r");
     char bf[1024];
     while (fgets(bf, sizeof(bf), fp) != NULL) {
@@ -1059,7 +1059,7 @@ int check_for_dquotes_to_duplicate(void) {                              // check
 }
 
 int main(void) {
-    system("");                                                        // needed to make cmd load escape codes, don't ask me why lol
+    system("");
     BOOL session_loaded = FALSE;
     print_version_info();
     setup_folders();
