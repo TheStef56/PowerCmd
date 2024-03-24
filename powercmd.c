@@ -883,7 +883,7 @@ history                         : prints the history of the commands you have pr
 clear-history                   : clears the history\n\n");
 }
 
-void set_background_color(void) {
+void set_background_color(void) {                                       // sets the background color based on CURRENT_BACK_COLOR
     char tmp[64];
     char ch;
     if (CURRENT_BACK_COLOR <= 9) ch  = CURRENT_BACK_COLOR + 48;
@@ -1005,7 +1005,7 @@ int check_commands(void) {                                              // check
     return 0;
 }
 
-void setup_folders(void) {                                           // finds the absolute path of the directory of main program and adds /.history
+void setup_folders(void) {                                              // finds the absolute path of the directory of main program and adds /.history
     char *c = getenv("APPDATA");
     HISTORY_FILE = malloc(MAX_PATH*sizeof(char));
     SESSION_FILE = malloc(MAX_PATH*sizeof(char));
