@@ -883,6 +883,15 @@ history                         : prints the history of the commands you have pr
 clear-history                   : clears the history\n\n");
 }
 
+void set_background_color(void) {
+    char tmp[64];
+    char ch;
+    if (CURRENT_BACK_COLOR <= 9) ch  = CURRENT_BACK_COLOR + 48;
+    if (CURRENT_BACK_COLOR >= 10) ch = CURRENT_BACK_COLOR + 55;
+    sprintf(tmp, "powershell -command \"$Host.UI.RawUI.BackgroundColor = %c", ch);
+    system(tmp);
+}
+
 int check_commands(void) {                                              // checks for custom commands and behaves accordingly
     if (!strcmp(cmd_buffer, CUSTOM_COMMANDS[EXIT])) {
         save_buffer(cmd_buffer);
@@ -978,16 +987,13 @@ int check_commands(void) {                                              // check
             print_color_list();
             return 1;
         } else {
-            char tmp[64];
-            int c;
-            if (CURRENT_CORE_COLOR <= 9) c = CURRENT_CORE_COLOR + 48;
-            if (CURRENT_CORE_COLOR >= 10) c = CURRENT_CORE_COLOR + 55;
-            sprintf(tmp, "color %c%c", ch, c);
-            system(tmp);
+            //----------------------------------------------------------------------|
             printf("\n");
             if (ch <= 57) ch -= 48;               // colors index from 0 to 9 
             if (ch >= 65) ch -= 55;               // colors index from 10 to 15
             CURRENT_BACK_COLOR = ch;
+            set_background_color();
+            system("cls");
             save_session();
             return 1;
         }
@@ -1069,6 +1075,7 @@ int main(void) {
         session_loaded = TRUE;
         getcwd(cmd_buffer, MAX_BUFFER_SIZE);
         printf("\033[%um%s:\033[%um ", CORE_COLOR, cmd_buffer, TYPING_COLOR);
+        set_background_color();
         if (get_input() == 1) {
             continue;
         }
