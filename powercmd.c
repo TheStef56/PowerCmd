@@ -42,8 +42,8 @@ char cmd_buffer[MAX_BUFFER_SIZE + NULL_TERM]        = {0};
 char cmd_temp_buffer[MAX_BUFFER_SIZE + NULL_TERM]   = {0};
 AutoCompl_CircularSearch ACCS                       = {0};              // circular linked list for commands
 CustomColors CURRENT_CORE_COLOR                     =  DARK_GREEN;
-CustomColors CURRENT_TYPING_COLOR                   =  DARK_BLUE;
-CustomColors CURRENT_BACK_COLOR                     =  BRIGHT_CYAN;
+CustomColors CURRENT_TYPING_COLOR                   =  BRIGHT_CYAN;
+CustomColors CURRENT_BACK_COLOR                     =  BLACK;
 size_t BUFFER_CURSOR                                = 0;
 size_t INDEX                                        = 0;
 size_t FILE_CURSOR_OFFSET;
@@ -1060,7 +1060,7 @@ void print_version_info(void) {                                         // print
     printf("%s", bf);
     printf("\n\
 |\\   ____|\\____\n\
-| \\ ////)))))\\\\\\@     powercmd v: 2.1.1\n\
+| \\ ////)))))\\\\\\@     powercmd v: 2.5.1\n\
 | /)))))))))))))))>\n\
 |/  \\\\\\)))))/////     type help?\n\
          |/  \n\
