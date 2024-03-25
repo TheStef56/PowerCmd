@@ -29,6 +29,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <windows.h>
 #include <malloc.h>
 #include <dirent.h>
+#include <time.h>
 #include "powercmd.h"
 
 #define MAX_BUFFER_SIZE 8191                                            // 8KB as Windows terminal standard
@@ -48,6 +49,7 @@ size_t INDEX                                        = 0;
 size_t FILE_CURSOR_OFFSET;
 size_t CORE_COLOR;
 size_t TYPING_COLOR;
+time_t LAST_INPUT_TIME;
 
 char *get_last_char(char *buffer, char ch) {                            // get the pointer to the last character matched in the string, else get NULL
     size_t len = strlen(buffer);
@@ -631,12 +633,13 @@ void handle_tab(void) {                                                 // Handl
 int get_input(void) {                                                   // gets the keyboard input and acts accordingly based on key-code
     buff_clear();
     int ch;
-    unsigned long long count = 0;
     while (1) {
         BOOL do_default      = FALSE;
         BOOL is_ctrl_pressed = GetAsyncKeyState(VK_LCONTROL) & 0x8000;
         BOOL is_V_pressed    = GetAsyncKeyState('V') & 0x8000;
-        if (!(is_ctrl_pressed && is_V_pressed)) Sleep(1);
+        time_t now;
+        time(&now);
+        if (now - LAST_INPUT_TIME >= 1) Sleep(1);
         if (kbhit()) {
             BOOL is_shift_pressed = GetAsyncKeyState(VK_SHIFT) & 0x8000;
             BOOL is_ctrl_pressed  = GetAsyncKeyState(VK_LCONTROL) & 0x8000;
@@ -732,6 +735,7 @@ int get_input(void) {                                                   // gets 
                     break;
             }
             if (do_default) {
+                time(&LAST_INPUT_TIME);
                 INDEX = 0;
                 free_nodes(ACCS.first, ACCS.count);
                 if (strlen(cmd_buffer) >= MAX_BUFFER_SIZE - 1) continue;
