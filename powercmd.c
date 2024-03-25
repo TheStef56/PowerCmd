@@ -897,18 +897,19 @@ void set_background_color(void) {                                       // sets 
 }
 
 int check_commands(void) {                                              // checks for custom commands and behaves accordingly
+    size_t l = strlen(CUSTOM_COMMANDS);
     if (!strcmp(cmd_buffer, CUSTOM_COMMANDS[EXIT])) {
         save_buffer(cmd_buffer);
         free(HISTORY_FILE);
         free_nodes(ACCS.first, ACCS.index);
         exit(0);
-    } else if (!strcmp(cmd_buffer, CUSTOM_COMMANDS[HISTORY])) {
+    } else if (!strncmp(cmd_buffer, CUSTOM_COMMANDS[HISTORY], strlen(CUSTOM_COMMANDS[HISTORY]))) {
         save_buffer(cmd_buffer);
         if (access(HISTORY_FILE, F_OK)) {
             printf("\n");
             return 1;
         }
-        FILE * fl = fopen(HISTORY_FILE, "r");
+        FILE * fl = fopen(HISTORY_FILE, "rb");
         fseek(fl, 0, SEEK_END);
         size_t size = ftell(fl);
         fseek(fl, 0, SEEK_SET);
@@ -916,14 +917,13 @@ int check_commands(void) {                                              // check
         char last_c;
         if (size > 0){
             printf("\n");
-            printf("0: ");
-            while (!feof(fl)){
-                last_c = fgetc(fl);
-                printf("%c", last_c);
-                if (last_c == '\n') {
-                    count++;
-                    printf("%u: ", count);
-                } 
+            char *buffer = malloc(size*sizeof(char));
+            fread(buffer, size*sizeof(char), 1, fl);
+            char *word = strtok(buffer, "\n");
+            while (word != NULL){
+                printf("%u: %s", count, word);
+                word = strtok(NULL, "\n");
+                count++;
             }
             printf("\n");
         } else {
