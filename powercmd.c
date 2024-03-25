@@ -883,7 +883,9 @@ void print_commands(void) {                                             // print
 color            [color index]  : sets the color of the path you are crruently in\n\
 text-color       [color index]  : sets the color of the input and output\n\
 background-color [color index]  : sets the background color of the terminal\n\
-history                         : prints the history of the commands you have previously typed\n\
+history          [match]        : prints the history of the commands you have previously typed.\n\
+                                  [match] is not necessary if you want the whole history\n\
+                                  instead of just the history commands containing [match]\n\
 clear-history                   : clears the history\n\n");
 }
 
@@ -897,13 +899,13 @@ void set_background_color(void) {                                       // sets 
 }
 
 int check_commands(void) {                                              // checks for custom commands and behaves accordingly
-    size_t l = strlen(CUSTOM_COMMANDS);
+    char *h = CUSTOM_COMMANDS[HISTORY];
     if (!strcmp(cmd_buffer, CUSTOM_COMMANDS[EXIT])) {
         save_buffer(cmd_buffer);
         free(HISTORY_FILE);
         free_nodes(ACCS.first, ACCS.index);
         exit(0);
-    } else if (!strncmp(cmd_buffer, CUSTOM_COMMANDS[HISTORY], strlen(CUSTOM_COMMANDS[HISTORY]))) {
+    } else if (!strcmp(cmd_buffer, h) || !strncmp(cmd_buffer, h, strlen(h)) && cmd_buffer[strlen(h)] == ' ') {
         save_buffer(cmd_buffer);
         if (access(HISTORY_FILE, F_OK)) {
             printf("\n");
@@ -917,14 +919,28 @@ int check_commands(void) {                                              // check
         char last_c;
         if (size > 0){
             printf("\n");
-            char *buffer = malloc(size*sizeof(char));
+            char *match = NULL;
+            if (cmd_buffer[strlen(h)] == ' ') {
+                if (cmd_buffer[strlen(h) + 1] != '\0') match = cmd_buffer + strlen(h) + 1; 
+            }
+            char *buffer = malloc(size*sizeof(char) + 1);
+            buffer[size] = '\0';
             fread(buffer, size*sizeof(char), 1, fl);
             char *word = strtok(buffer, "\n");
             while (word != NULL){
-                printf("%u: %s", count, word);
+                if (match != NULL) {
+                    if (strstr(word, match) != NULL) {
+                        printf("%u: %s\n", count, word);
+                    }
+                    word = strtok(NULL, "\n");
+                    count++;
+                    continue;
+                }
+                printf("%u: %s\n", count, word);
                 word = strtok(NULL, "\n");
                 count++;
             }
+            free(buffer);
             printf("\n");
         } else {
             printf("\n");
