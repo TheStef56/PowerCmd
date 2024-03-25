@@ -906,7 +906,6 @@ int check_commands(void) {                                              // check
         free_nodes(ACCS.first, ACCS.index);
         exit(0);
     } else if (!strcmp(cmd_buffer, h) || !strncmp(cmd_buffer, h, strlen(h)) && cmd_buffer[strlen(h)] == ' ') {
-        save_buffer(cmd_buffer);
         if (access(HISTORY_FILE, F_OK)) {
             printf("\n");
             return 1;
@@ -945,6 +944,7 @@ int check_commands(void) {                                              // check
         } else {
             printf("\n");
         }
+        save_buffer(cmd_buffer);
         return 1;
     } else if (!strcmp(cmd_buffer, CUSTOM_COMMANDS[CLEAR_HISTORY])) {
         save_buffer(cmd_buffer);
