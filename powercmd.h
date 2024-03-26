@@ -47,7 +47,7 @@
                                         if (last_x == 0) {\
                                             printf(" \033[1D");\
                                             x++;}\
-                                        if (csbi.dwMaximumWindowSize.X - csbi.dwCursorPosition.X == 1) {     \
+                                        if (csbi.dwMaximumWindowSize.X - csbi.dwCursorPosition.X == 1) {\
                                         char charAtCursor;\
                                         DWORD bytesRead;\
                                         COORD cursorPos = csbi.dwCursorPosition;\

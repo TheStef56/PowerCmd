@@ -687,6 +687,8 @@ int get_input(void) {                                                   // gets 
                 case 9:   // TAB
                         handle_tab();
                     break;
+                case 10:
+                    break;
                 case 13:   // ENTER
                     free_nodes(ACCS.first, ACCS.count);
                     swap_buffers();
@@ -962,7 +964,6 @@ int check_commands(void) {                                              // check
                 count++;
             }
             free(buffer);
-            printf("\n");
         } else {
             printf("\n");
         }
