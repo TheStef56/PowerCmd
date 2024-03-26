@@ -35,7 +35,8 @@
                                         BUFFER_CURSOR++;}}} while (0)
 #define move_cursor_to_end(void)    move_cursor_right(strlen(cmd_buffer) - BUFFER_CURSOR)
 #define move_cursor_to_start(void)  do {while (BUFFER_CURSOR > 0) {move_cursor_left(1);}} while (0)
-#define reset_terminal_cursor(void) do {CONSOLE_SCREEN_BUFFER_INFO csbi;\
+#define reset_terminal_cursor(void) do {if (strlen(cmd_buffer) == 0) break;\
+                                        CONSOLE_SCREEN_BUFFER_INFO csbi;\
                                         HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);\
                                         move_cursor_to_end();\
                                         printf("\033[1C");\
