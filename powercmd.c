@@ -1082,7 +1082,7 @@ void print_version_info(void) {                                         // print
     printf("%s", bf);
     printf("\n\
 |\\   ____|\\____\n\
-| \\ ////)))))\\\\\\@     powercmd v: 2.5.1\n\
+| \\ ////)))))\\\\\\@     powercmd v: 2.8.1\n\
 | /)))))))))))))))>\n\
 |/  \\\\\\)))))/////     type help?\n\
          |/  \n\
