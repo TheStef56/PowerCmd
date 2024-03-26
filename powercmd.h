@@ -7,19 +7,64 @@
                                         if (string[0] == '"') memmove(string, string + 1, len);} while (0)
 #define move_cursor_left(count)    do {for (int x = 0; x < count; x++) {\
                                         if (BUFFER_CURSOR > 0) {\
+                                        CONSOLE_SCREEN_BUFFER_INFO csbi;\
+                                        HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);\
+                                        GetConsoleScreenBufferInfo(console, &csbi);\
+                                        if (csbi.dwCursorPosition.X == 0){\
+                                            printf("\033[1A");\
+                                            BUFFER_CURSOR--;\
+                                            printf("\033[%dC", csbi.dwSize.X);\
+                                            continue;\
+                                        }\
                                         printf("\033[1D");\
                                         BUFFER_CURSOR--;}}} while (0)
-#define move_cursor_right(count)    do {size_t cnt = count;\
+
+#define move_cursor_right(count) do {size_t cnt = count;\
                                         for (int x = 0; x < cnt; x++) {\
                                         if (BUFFER_CURSOR < strlen(cmd_buffer)) {\
+                                        CONSOLE_SCREEN_BUFFER_INFO csbi;\
+                                        HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);\
+                                        GetConsoleScreenBufferInfo(console, &csbi);\
+                                        if (csbi.dwCursorPosition.X == csbi.dwSize.X - 1){\
+                                            printf("\033[1B");\
+                                            printf("\033[%dD", csbi.dwSize.X);\
+                                            BUFFER_CURSOR++;\
+                                            continue;\
+                                        }\
                                         printf("\033[1C");\
-                                        BUFFER_CURSOR++;}}} while (0)                                    
+                                        BUFFER_CURSOR++;}}} while (0)
 #define move_cursor_to_end(void)    move_cursor_right(strlen(cmd_buffer) - BUFFER_CURSOR)
 #define move_cursor_to_start(void)  do {while (BUFFER_CURSOR > 0) {move_cursor_left(1);}} while (0)
-#define reset_terminal_cursor(void) do {move_cursor_to_end();\
+#define reset_terminal_cursor(void) do {CONSOLE_SCREEN_BUFFER_INFO csbi;\
+                                        HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);\
+                                        move_cursor_to_end();\
+                                        printf("\033[1C");\
                                         size_t bfsz = strlen(cmd_buffer);\
-                                        for (int x = 0; x < bfsz; x++) {printf("\033[1D \033[1D");}\
+                                        int last_x = -1;\
+                                        for (int x = 0; x <= bfsz; x++) {\
+                                        GetConsoleScreenBufferInfo(console, &csbi);\
+                                        if (last_x == 0) {\
+                                            printf(" \033[1D");\
+                                            x++;}\
+                                        if (csbi.dwMaximumWindowSize.X - csbi.dwCursorPosition.X == 1) {     \
+                                        char charAtCursor;\
+                                        DWORD bytesRead;\
+                                        COORD cursorPos = csbi.dwCursorPosition;\
+                                        ReadConsoleOutputCharacter(console, &charAtCursor, 1, cursorPos, &bytesRead);\
+                                        COORD nextPos = {cursorPos.X + 1, cursorPos.Y};\
+                                        char charAtNext;\
+                                        ReadConsoleOutputCharacter(console, &charAtNext, 1, nextPos, &bytesRead);\
+                                        if (charAtCursor != ' ' && charAtNext == '\0') {\
+                                            printf(" ");\
+                                            x++;}}\
+                                        last_x = csbi.dwCursorPosition.X;\
+                                        move_cursor_left(1);\
+                                        BUFFER_CURSOR++;\
+                                        printf(" ");\
+                                        move_cursor_left(1);\
+                                        BUFFER_CURSOR++;}\
                                         BUFFER_CURSOR = 0;} while (0)
+
 #define buff_append(buffer, c)       do {size_t len = strlen(buffer);\
                                         buffer[len]             = c;\
                                         buffer[len + NULL_TERM] = '\0';} while (0)

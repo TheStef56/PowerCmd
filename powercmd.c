@@ -201,8 +201,30 @@ void back_space(size_t count) {                                         // cance
         if (BUFFER_CURSOR > 0) {
             size_t bfsz = strlen(cmd_buffer);
             if (BUFFER_CURSOR == bfsz) {
+                CONSOLE_SCREEN_BUFFER_INFO csbi;
+                HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+                GetConsoleScreenBufferInfo(console, &csbi);
                 buff_pop();
-                printf("\033[1D \033[1D");
+                if (csbi.dwMaximumWindowSize.X - csbi.dwCursorPosition.X == 1) {     
+                    char charAtCursor;
+                    DWORD bytesRead;
+                    COORD cursorPos = csbi.dwCursorPosition;
+                    ReadConsoleOutputCharacter(console, &charAtCursor, 1, cursorPos, &bytesRead);
+                    COORD nextPos = {cursorPos.X + 1, cursorPos.Y};
+                    char charAtNext;
+                    ReadConsoleOutputCharacter(console, &charAtNext, 1, nextPos, &bytesRead);
+                    if (charAtCursor != ' ' && charAtNext == '\0') {
+                        char ch = cmd_buffer[bfsz - NULL_TERM - 1];
+                        printf("\033[1D%c ", ch);
+                        BUFFER_CURSOR--;
+                        return;
+                    }
+                }
+                move_cursor_left(1);
+                printf(" ");
+                BUFFER_CURSOR++;
+                move_cursor_left(1);
+                if (csbi.dwCursorPosition.X == 0) printf("\033[1C");
             } else {
                 size_t last_bfc = BUFFER_CURSOR;
                 size_t offset   = bfsz -  BUFFER_CURSOR;
@@ -210,12 +232,12 @@ void back_space(size_t count) {                                         // cance
                 reset_terminal_cursor();
                 BUFFER_CURSOR = last_bfc;
                 printf("%s", cmd_buffer);
-                printf(" \033[1D");
                 for (int x = 0; x < offset; x++) {
-                    printf("\033[1D");
+                    move_cursor_left(1);
+                    BUFFER_CURSOR++;
                 };
+                BUFFER_CURSOR--;
             }
-            BUFFER_CURSOR--;
         }
     }
     INDEX = 0;
