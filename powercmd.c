@@ -50,6 +50,8 @@ size_t FILE_CURSOR_OFFSET;
 size_t CORE_COLOR;
 size_t TYPING_COLOR;
 time_t LAST_INPUT_TIME;
+size_t BASE_CURSOR_X;
+size_t BASE_CURSOR_Y;
 
 char *get_last_char(char *buffer, char ch) {                            // get the pointer to the last character matched in the string, else get NULL
     size_t len = strlen(buffer);
@@ -1108,16 +1110,22 @@ int check_for_dquotes_to_duplicate(void) {                              // check
 }
 
 int main(void) {
-    system("");
     BOOL session_loaded = FALSE;
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+    system("");
     print_version_info();
     setup_folders();
     chdir(getenv("USERPROFILE"));
     while (1) {
+
         if (!session_loaded) load_sesion();
         session_loaded = TRUE;
         getcwd(cmd_buffer, MAX_BUFFER_SIZE);
         printf("\033[%um%s:\033[%um ", CORE_COLOR, cmd_buffer, TYPING_COLOR);
+        GetConsoleScreenBufferInfo(console, &csbi);
+        BASE_CURSOR_X = csbi.dwCursorPosition.X;
+        BASE_CURSOR_Y = csbi.dwCursorPosition.Y;
         set_background_color();
         if (get_input() == 1) {
             continue;

@@ -59,6 +59,10 @@
                                             printf(" ");\
                                             x++;}}\
                                         last_x = csbi.dwCursorPosition.X;\
+                                        CONSOLE_SCREEN_BUFFER_INFO csbi;\
+                                        HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);\
+                                        GetConsoleScreenBufferInfo(console, &csbi);\
+                                        if (csbi.dwCursorPosition.X <= BASE_CURSOR_X && csbi.dwCursorPosition.Y == BASE_CURSOR_Y) break;\
                                         move_cursor_left(1);\
                                         BUFFER_CURSOR++;\
                                         printf(" ");\
