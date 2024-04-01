@@ -14,7 +14,7 @@ if ($DefaultShortcut -ne $null) {
     Write-Output "Custom Command prompt shortcut not found."
 }
 
-# putting back cmd shortcut
+# putting back cmd original shortcut
 
 $WshShell = New-Object -ComObject WScript.Shell
 $CmdPath = "C:\Windows\System32\cmd.exe"
