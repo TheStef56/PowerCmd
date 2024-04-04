@@ -439,8 +439,10 @@ size_t auto_complete_dump(char *match) {                                // looks
         if (strchr(FindData.cFileName, ' ') != NULL) {
             char edit[len + 3];
             strncpy(edit, FindData.cFileName, len);
-            edit[len] = '"';
-            edit[len + 1]         = '\0';
+            memmove(edit + 1, edit, strlen(edit));
+            edit[0] = '"';
+            edit[len + 1] = '"';
+            edit[len + 2]         = '\0';
             ACCS_append(edit);
             found++;
         } else {
@@ -452,8 +454,10 @@ size_t auto_complete_dump(char *match) {                                // looks
             if (strchr(FindData.cFileName, ' ') != NULL) {
                 char edit[len + 3];
                 strncpy(edit, FindData.cFileName, len);
-                edit[len] = '"';
-                edit[len + 1]         = '\0';
+                memmove(edit + 1, edit, strlen(edit));
+                edit[0] = '"';
+                edit[len + 1] = '"';
+                edit[len + 2]         = '\0';
                 ACCS_append(edit);
                 found++;
             } else {
