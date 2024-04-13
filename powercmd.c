@@ -30,6 +30,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <malloc.h>
 #include <dirent.h>
 #include <time.h>
+#include <signal.h>
 #include "powercmd.h"
 
 #define MAX_BUFFER_SIZE 8191                                            // 8KB as Windows terminal standard
@@ -52,6 +53,8 @@ size_t TYPING_COLOR;
 time_t LAST_INPUT_TIME;
 size_t BASE_CURSOR_X;
 size_t BASE_CURSOR_Y;
+
+void handle_sig(int sig) {(void) sig;}
 
 char *get_last_char(char *buffer, char ch) {                            // get the pointer to the last character matched in the string, else get NULL
     size_t len = strlen(buffer);
@@ -662,6 +665,7 @@ int get_input(void) {                                                   // gets 
     buff_clear();
     int ch;
     while (1) {
+        signal(SIGINT, handle_sig);
         BOOL do_default      = FALSE;
         BOOL is_ctrl_pressed = GetAsyncKeyState(VK_LCONTROL) & 0x8000;
         BOOL is_V_pressed    = GetAsyncKeyState('V') & 0x8000;
@@ -1122,7 +1126,6 @@ int main(void) {
     setup_folders();
     chdir(getenv("USERPROFILE"));
     while (1) {
-
         if (!session_loaded) load_sesion();
         session_loaded = TRUE;
         getcwd(cmd_buffer, MAX_BUFFER_SIZE);
