@@ -479,7 +479,7 @@ size_t auto_complete_dump(char *match) {                                // looks
         if (hFind != INVALID_HANDLE_VALUE) {
             size_t fl_len = strlen(FindData.cFileName);
             if (fl_len > 5) {
-                if (strcmp(FindData.cFileName + fl_len - 4, ".exe") == 0 || strcmp(FindData.cFileName + fl_len - 4, ".lnk") == 0) {         // finding only executables and links
+                if (strcmp(FindData.cFileName + fl_len - 4, ".exe") == 0 || strcmp(FindData.cFileName + fl_len - 4, ".lnk") == 0 || strcmp(FindData.cFileName + fl_len - 4, ".bat") == 0) {         // finding only executables and links
                     ACCS_append(FindData.cFileName);
                     found++;
                 }
@@ -487,7 +487,7 @@ size_t auto_complete_dump(char *match) {                                // looks
             while (FindNextFile(hFind, &FindData) != 0) {
                 fl_len = strlen(FindData.cFileName);
                 if (fl_len > 5) {
-                    if (strcmp(FindData.cFileName + fl_len - 4, ".exe") == 0 || strcmp(FindData.cFileName + fl_len - 4, ".lnk") == 0) {     // finding only executables and links 
+                    if (strcmp(FindData.cFileName + fl_len - 4, ".exe") == 0 || strcmp(FindData.cFileName + fl_len - 4, ".lnk") == 0 || strcmp(FindData.cFileName + fl_len - 4, ".bat") == 0) {     // finding only executables and links 
                         ACCS_append(FindData.cFileName);
                         found++;
                     }
