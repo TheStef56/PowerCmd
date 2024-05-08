@@ -877,6 +877,7 @@ void load_sesion(void) {                                                // load 
         fread(&size, sizeof(size_t), 1, fl);
         char buffer[size];
         fread(&buffer, sizeof(char), size, fl);
+        buffer[size - 1] = '\0';
         chdir(buffer);
         fclose(fl);
     }
