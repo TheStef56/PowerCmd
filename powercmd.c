@@ -1103,21 +1103,6 @@ void print_version_info(void) {                                         // print
     pclose(fp);
 }
 
-int check_for_dquotes_to_duplicate(void) {                              // checks for dquotes (") to duplicate before sending them to system(), otherwise single presence of them won't matter 
-    size_t offset = 0;
-    for (size_t x = 0; x < strlen(cmd_buffer) + NULL_TERM; x++) {
-        if (x + offset > MAX_BUFFER_SIZE) return 1;
-        cmd_temp_buffer[x + offset] = cmd_buffer[x];
-        if (cmd_buffer[x] == '"'){
-            cmd_temp_buffer[x + offset + NULL_TERM] = '"';
-            offset++;
-        }
-    }
-    memcpy(cmd_buffer, cmd_temp_buffer, MAX_BUFFER_SIZE + NULL_TERM);
-    empty_buffer(cmd_temp_buffer);
-    return 0;
-}
-
 int main(void) {
     BOOL session_loaded = FALSE;
     CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -1147,7 +1132,6 @@ int main(void) {
         } else {
             printf("\n");
             if (strlen(cmd_buffer) > 0) save_buffer(cmd_buffer);
-            check_for_dquotes_to_duplicate();
             system(cmd_buffer);
             buff_clear();
         }
