@@ -120,7 +120,7 @@ Token get_last_valid_token(char *buffer) {                              // get l
 
 }
 
-void ACCS_append(char *value) {                                         // append entrie to the circular linked list
+void ACCS_append(char *value) {                                         // append entry to the circular linked list
     if (ACCS.count == 0) {
         ACCS.first        = malloc(sizeof(Node));
         ACCS.first->value = malloc(sizeof(char)*(strlen(value)+1));
@@ -601,6 +601,9 @@ void handle_tab(void) {                                                 // Handl
     if (strchr(cmd_buffer, ' ') == NULL) {
         if (bfsz == 0) {
             auto_complete_dir_dump(NULL, ".");
+            print_nodes(ACCS.first, ACCS.index);
+        } else if (strchr(cmd_buffer, '\\') != NULL){
+            auto_complete_dump(cmd_buffer);
             print_nodes(ACCS.first, ACCS.index);
         } else {
             if (auto_complete_dump(cmd_buffer)) back_space(bfsz);
