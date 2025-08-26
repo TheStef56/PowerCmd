@@ -248,7 +248,7 @@ void back_space(size_t count) {                                         // cance
     INDEX = 0;
 }
 
-void cancel_until_token(void) {                                         // cancel until a space or a " ora \ is encountered
+void cancel_until_token(void) {                                         // cancel until a space or a " or a \ is encountered
     char tmp[MAX_BUFFER_SIZE + NULL_TERM];
     char *last_back_slash = get_last_char(cmd_buffer, '\\');
     memset(tmp, 0, MAX_BUFFER_SIZE + NULL_TERM);
@@ -286,7 +286,7 @@ void free_nodes(Node *n, int idx) {                                     // free 
     free_nodes(next, idx - 1);
 }
 
-void print_nodes(Node *n, int idx) {                                    // prints all the nodes recursively
+void print_nodes(Node *n, int idx, size_t match_len) {                  // prints all the nodes recursively
     if (ACCS.count == 0) return;
     if (idx == 0) {
         size_t limit;
@@ -312,8 +312,22 @@ void print_nodes(Node *n, int idx) {                                    // print
         char *temp_n_value = temp_n_value_buff;
         strncpy(temp_n_value, n->value, n_len + NULL_TERM);
         Token t = get_last_valid_token(cmd_buffer);                                                               // getting kind of last token to avoid putting extra duote at the beginning
-        if (strchr(cmd_buffer, ' ') == NULL) {
-            strncpy(cmd_temp_buffer + strlen(cmd_temp_buffer), temp_n_value, strlen(temp_n_value) + NULL_TERM);
+        if (strchr(cmd_buffer, ' ') == NULL) {                                                                    // if there is no space in cmd_buffer (hence we have a type 'b' token)
+            if (temp_n_value[0] == '"') {                                                                         // if matching file/dir starts with dquote
+                remove_dquotes(temp_n_value);
+                char tmp[n_len + 1 + NULL_TERM];
+                memset(tmp, 0 , n_len + 1 + NULL_TERM);
+                strncpy(tmp, temp_n_value, n_len + NULL_TERM);
+                tmp[strlen(tmp)] = '"';
+                tmp[strlen(tmp) + 1] = '\0';
+                temp_n_value = tmp;
+                if (cmd_buffer[0] != '"' && cmd_buffer[0] != '"') {
+                    memmove(cmd_temp_buffer + 1, cmd_temp_buffer, strlen(cmd_temp_buffer));
+                    cmd_temp_buffer[0] = '"';
+                }
+            }
+            
+            strncpy(cmd_temp_buffer + strlen(cmd_temp_buffer)  - match_len, temp_n_value, strlen(temp_n_value) + NULL_TERM);
             printf("%s",cmd_temp_buffer);
             return;
         }
@@ -335,18 +349,17 @@ void print_nodes(Node *n, int idx) {                                    // print
             temp_n_value = tmp;
         } 
 
-        strncpy(cmd_temp_buffer + strlen(cmd_temp_buffer), temp_n_value, strlen(temp_n_value) + NULL_TERM);
+        strncpy(cmd_temp_buffer + strlen(cmd_temp_buffer) - match_len, temp_n_value, strlen(temp_n_value) + NULL_TERM);
         if (get_char_count(cmd_temp_buffer, '"') > 0 && get_char_count(cmd_temp_buffer, '"')%2 != 0) {
             cmd_temp_buffer[strlen(cmd_temp_buffer)] = '"';
             cmd_temp_buffer[strlen(cmd_temp_buffer) + 1] = '\0';
         }
 
         // ---------------------------------------------------------------------------------------------------------------
-
         printf("%s",cmd_temp_buffer);
         return;
     }
-    print_nodes(n->next, idx - 1);
+    print_nodes(n->next, idx - 1, match_len);
 }
 
 int count_lines(void) {                                                 // counts the lines of the history file
@@ -601,15 +614,14 @@ void handle_tab(void) {                                                 // Handl
     if (strchr(cmd_buffer, ' ') == NULL) {
         if (bfsz == 0) {
             auto_complete_dir_dump(NULL, ".");
-            print_nodes(ACCS.first, ACCS.index);
+            print_nodes(ACCS.first, ACCS.index, 0);
         } else if (strchr(cmd_buffer, '\\') != NULL){
             auto_complete_dump(cmd_buffer);
-            print_nodes(ACCS.first, ACCS.index);
+            print_nodes(ACCS.first, ACCS.index, 0);
         } else {
             if (auto_complete_dump(cmd_buffer)) back_space(bfsz);
-            print_nodes(ACCS.first, ACCS.index);
+            print_nodes(ACCS.first, ACCS.index, 0);
         }
-        return;
     }
     switch (t.kind){
         case ' ':
@@ -620,22 +632,70 @@ void handle_tab(void) {                                                 // Handl
                 *slash = '\0';
                 if (slash[1] == '\0') {
                     auto_complete_dir_dump(NULL, t.ptr + 1);
-                    print_nodes(ACCS.first, ACCS.index);
+                    print_nodes(ACCS.first, ACCS.index, 0);
                 } else {
                     char tmp2[strlen(slash + 1) + NULL_TERM];
                     strncpy(tmp2, slash + 1, strlen(slash + 1) + NULL_TERM);
                     slash[0] = '\\';
                     slash[1] = '\0';
                     if (auto_complete_dir_dump(tmp2, tmp)) back_space(strlen(tmp2));
-                    print_nodes(ACCS.first, ACCS.index);
+                    print_nodes(ACCS.first, ACCS.index, 0);
                 }
             } else if (t.ptr[1] != '\0') {                   // if there are no slashes and there is a match
                 if (auto_complete_dir_dump(t.ptr + 1, ".")) back_space(strlen(t.ptr + 1));
-                print_nodes(ACCS.first, ACCS.index);
+                print_nodes(ACCS.first, ACCS.index, 0);
                    
             } else {                                         // if we are just going to complete after a space
                 auto_complete_dir_dump(NULL, ".");
-                print_nodes(ACCS.first, ACCS.index);
+                print_nodes(ACCS.first, ACCS.index, 0);
+            }
+            break;
+        case 'b':
+            if (*t.ptr == '"') {
+                if (t.ptr[1] == '\0') return;
+                if (get_last_char(cmd_buffer, '\\') - t.ptr > 0) { // if there is a slash after last dquote
+                    if (cmd_buffer[bfsz - NULL_TERM] == '"') cmd_buffer[bfsz - NULL_TERM] = '\0';
+                    bfsz = strlen(cmd_buffer);
+                    char tmp[bfsz + NULL_TERM];
+                    strncpy(tmp, t.ptr, bfsz + NULL_TERM);
+                    char * slash = get_last_char(tmp, '\\');
+                    *slash = '\0';
+                    if (slash[1] == '\0') {
+                        auto_complete_dir_dump(NULL, tmp);
+                        print_nodes(ACCS.first, ACCS.index, 0);
+                    } else {
+                        auto_complete_dir_dump(slash + 1, tmp);
+                        print_nodes(ACCS.first, ACCS.index, strlen(slash + 1));
+                    }
+                } else {                                           // if we are just completing an entry after a dquote
+                    if (auto_complete_dir_dump(t.ptr, ".")) back_space(strlen(t.ptr));
+                    print_nodes(ACCS.first, ACCS.index, 0);
+                }
+                return;
+            }
+            if (get_last_char(cmd_buffer, '\\') - t.ptr > 0){  // if there is a slash after the last space
+                char tmp[bfsz + NULL_TERM];
+                strncpy(tmp, t.ptr, bfsz + NULL_TERM);
+                char * slash = get_last_char(tmp, '\\');
+                *slash = '\0';
+                if (slash[1] == '\0') {
+                    auto_complete_dir_dump(NULL, t.ptr);
+                    print_nodes(ACCS.first, ACCS.index, 0);
+                } else {
+                    char tmp2[strlen(slash + 1) + NULL_TERM];
+                    strncpy(tmp2, slash + 1, strlen(slash + 1) + NULL_TERM);
+                    slash[0] = '\\';
+                    slash[1] = '\0';
+                    if (auto_complete_dir_dump(tmp2, tmp)) back_space(strlen(tmp2));
+                    print_nodes(ACCS.first, ACCS.index, strlen(slash + 1));
+                }
+            } else if (t.ptr[1] != '\0') {                   // if there are no slashes and there is a match
+                if (auto_complete_dir_dump(t.ptr + 1, ".")) back_space(strlen(t.ptr + 1));
+                print_nodes(ACCS.first, ACCS.index, 0);
+                   
+            } else {                                         // if we are just going to complete after a space
+                auto_complete_dir_dump(NULL, ".");
+                print_nodes(ACCS.first, ACCS.index, 0);
             }
             break;
         case '"': 
@@ -649,17 +709,17 @@ void handle_tab(void) {                                                 // Handl
                 *slash = '\0';
                 if (slash[1] == '\0') {
                     auto_complete_dir_dump(NULL, tmp);
-                    print_nodes(ACCS.first, ACCS.index);
+                    print_nodes(ACCS.first, ACCS.index, 0);
                 } else {
                     auto_complete_dir_dump(slash + 1, tmp);
-                    print_nodes(ACCS.first, ACCS.index);
+                    print_nodes(ACCS.first, ACCS.index, strlen(slash + 1));
                 }
             } else {                                           // if we are just completing an entry after a dquote
                 if (auto_complete_dir_dump(t.ptr + 1, ".")) back_space(strlen(t.ptr + 1));
-                print_nodes(ACCS.first, ACCS.index);
+                print_nodes(ACCS.first, ACCS.index, 0);
             }
             break;
-        default: 
+        default:
             break;
     }
 }
@@ -1097,7 +1157,7 @@ void print_version_info(void) {                                         // print
     printf("%s", bf);
     printf("\n\
 |\\   ____|\\____\n\
-| \\ ////)))))\\\\\\@     powercmd v: 2.9.1\n\
+| \\ ////)))))\\\\\\@     powercmd v: 2.9.2\n\
 | /)))))))))))))))>\n\
 |/  \\\\\\)))))/////     type help?\n\
          |/  \n\
